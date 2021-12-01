@@ -5,36 +5,45 @@ import 'package:rick_and_morty/feature/data/models/person_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class PersonLocalDataSource {
-  Future<List<PersonModel>>? getPersonsFromCache();
+  /// Gets the cached [List<PersonModel>] which was gotten the last time
+  /// the user had an internet connection.
+  ///
+  /// Throws [CacheException] if no cached data is present.
+  Future<List<PersonModel>> getLastPersonsFromCache();
 
-  Future personsToCache(List<PersonModel> persons);
+  Future<void> personsToCache(List<PersonModel> persons);
 }
 
 const CACHED_PERSONS_LIST = 'CACHED_PERSONS_LIST';
 
 class PersonLocalDataSourceImpl implements PersonLocalDataSource {
-  final SharedPreferences sharedPreferences;
+  SharedPreferences sharedPreferences;
 
   PersonLocalDataSourceImpl({required this.sharedPreferences});
 
   @override
-  Future<List<PersonModel>>? getPersonsFromCache() {
-    final List<String>? jsonPersonList = sharedPreferences.getStringList(CACHED_PERSONS_LIST);
-    if (jsonPersonList!.isNotEmpty) {
-      return Future.value(jsonPersonList
+  Future<List<PersonModel>> getLastPersonsFromCache() {
+    List<String>? jsonPersonsList =
+        sharedPreferences.getStringList(CACHED_PERSONS_LIST);
+    if (jsonPersonsList != null) {
+      print('Кол-во персонажей полученных из кэша: ${jsonPersonsList.length}');
+      jsonPersonsList.map((person) => print(person));
+      print('Персонажи из кэша: ${jsonPersonsList.toList()}');
+      return Future.value(jsonPersonsList
           .map((person) => PersonModel.fromJson(json.decode(person)))
           .toList());
     } else {
-      CacheException();
+      throw CacheException();
     }
   }
 
   @override
-  Future personsToCache(List<PersonModel> persons) {
-    final List<String> jsonPersonList =
+  Future<void> personsToCache(List<PersonModel> persons) {
+    final List<String> jsonPersonsList =
         persons.map((person) => json.encode(person.toJson())).toList();
-    sharedPreferences.setStringList(CACHED_PERSONS_LIST, jsonPersonList);
-    print('Persons to write Cache: ${jsonPersonList.length}');
-    return Future.value(jsonPersonList);
+
+    sharedPreferences.setStringList(CACHED_PERSONS_LIST, jsonPersonsList);
+    print('Кол-во персонажей записанных в кэш: ${jsonPersonsList.length}');
+    return Future.value(jsonPersonsList);
   }
 }

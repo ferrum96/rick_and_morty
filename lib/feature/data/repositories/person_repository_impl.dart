@@ -19,20 +19,20 @@ class PersonRepositoryImpl implements PersonRepository {
       required this.networkInfo});
 
   @override
-  Future<Either<Failure, List<PersonEntity>>?> getAllPersons(int page) async {
+  Future<Either<Failure, List<PersonEntity>>> getAllPersons(int page) async {
     return _getPersons(() {
       return remoteDataSource.getAllPersons(page);
     });
   }
 
   @override
-  Future<Either<Failure, List<PersonEntity>>?> searchPerson(String query) {
+  Future<Either<Failure, List<PersonEntity>>> searchPerson(String query) {
     return _getPersons(() {
       return remoteDataSource.searchPerson(query);
     });
   }
 
-  Future<Either<Failure, List<PersonModel>>?> _getPersons(
+  Future<Either<Failure, List<PersonModel>>> _getPersons(
       Future<List<PersonModel>> Function() getPersons) async {
     if (await networkInfo.isConnected) {
       try {
@@ -40,14 +40,14 @@ class PersonRepositoryImpl implements PersonRepository {
         localDataSource.personsToCache(remotePersons);
         return Right(remotePersons);
       } on ServerException {
-        Left(ServerFailure());
+        return Left(ServerFailure());
       }
     } else {
       try {
-        final locationPerson = await localDataSource.getPersonsFromCache();
-        return Right(locationPerson!);
+        final locationPerson = await localDataSource.getLastPersonsFromCache();
+        return Right(locationPerson);
       } on CacheException {
-        Left(CacheFailure());
+        return Left(CacheFailure());
       }
     }
   }

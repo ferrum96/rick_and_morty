@@ -6,11 +6,11 @@ import 'package:rick_and_morty/feature/domain/entities/person_entity.dart';
 import 'package:rick_and_morty/feature/domain/repositories/person_repository.dart';
 
 class SearchPerson extends UseCase<List<PersonEntity>, SearchPersonParams> {
-  final PersonRepository personRepository;
+  PersonRepository personRepository;
 
   SearchPerson(this.personRepository);
 
-  Future<Either<Failure, List<PersonEntity>>?> call(
+  Future<Either<Failure, List<PersonEntity>>> call(
       SearchPersonParams params) async {
     return await personRepository.searchPerson(params.query);
   }
