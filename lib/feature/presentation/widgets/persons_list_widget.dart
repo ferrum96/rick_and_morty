@@ -11,8 +11,9 @@ import 'package:rick_and_morty/feature/presentation/widgets/person_card_widget.d
 class PersonsList extends StatelessWidget {
   final scrollController = ScrollController();
   int page = -1;
+
   void setupScrollController(BuildContext context) {
-    scrollController.addListener(() {
+    scrollController.addListener(() async {
       if (scrollController.position.atEdge) {
         if (scrollController.position.pixels != 0) {
           //BlocProvider.of<PersonListCubit>(context).loadPerson();
@@ -44,6 +45,7 @@ class PersonsList extends StatelessWidget {
         );
       }
       return ListView.separated(
+        physics: BouncingScrollPhysics(),
         controller: scrollController,
         itemBuilder: (context, index) {
           if (index < persons.length) {

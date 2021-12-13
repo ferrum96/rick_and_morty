@@ -10,12 +10,10 @@ import 'package:rick_and_morty/feature/domain/usecases/get_all_persons.dart';
 import 'package:rick_and_morty/feature/domain/usecases/search_person.dart';
 import 'package:rick_and_morty/feature/presentation/bloc/person_list_cubit/person_list_cubit.dart';
 import 'package:rick_and_morty/feature/presentation/bloc/search_bloc/search_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
-
   // BLoc Cubit
   sl.registerFactory(() => PersonListCubit(getAllPersons: sl()));
   sl.registerFactory(() => PersonSearchBloc(searchPerson: sl()));
@@ -33,14 +31,12 @@ Future<void> init() async {
   sl.registerLazySingleton<PersonRemoteDataSource>(
       () => PersonRemoteDataSourceImpl(client: http.Client()));
   sl.registerLazySingleton<PersonLocalDataSource>(
-      () => PersonLocalDataSourceImpl(sharedPreferences: sl()));
+      () => PersonLocalDataSourceImpl());
 
   // Core
   sl.registerLazySingleton<NetworkInfo>(() => NetworkInfoImpl(sl()));
 
   // External
-  final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => sharedPreferences);
   sl.registerLazySingleton(() => http.Client());
   sl.registerLazySingleton(() => InternetConnectionChecker());
 }

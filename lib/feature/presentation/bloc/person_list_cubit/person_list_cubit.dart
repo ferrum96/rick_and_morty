@@ -20,7 +20,7 @@ class PersonListCubit extends Cubit<PersonState> {
 
     final currentState = state;
 
-    var oldPerson = <PersonEntity>[];
+    List<PersonEntity> oldPerson = <PersonEntity>[];
     if (currentState is PersonLoaded) {
       oldPerson = currentState.personsList;
     }
@@ -29,13 +29,16 @@ class PersonListCubit extends Cubit<PersonState> {
 
     final failureOrPerson = await getAllPersons(PagePersonParams(page: page));
 
-    failureOrPerson?.fold((error) => emit(PersonError(message: _mapFailureToMessage(error))), (character) {
-      page++;
-      final persons = (state as PersonLoading).oldPersonsList;
-      persons.addAll(character);
-      print('List length: ${persons.length.toString()}');
-      emit(PersonLoaded(persons));
-    });
+    failureOrPerson?.fold(
+      (error) => emit(PersonError(message: _mapFailureToMessage(error))),
+      (character) async {
+        page++;
+        final persons = (state as PersonLoading).oldPersonsList;
+        persons.addAll(character);
+        print('List length: ${persons.length.toString()}');
+        emit(PersonLoaded(persons));
+      },
+    );
   }
 
   String _mapFailureToMessage(Failure failure) {

@@ -44,7 +44,7 @@ class PersonRepositoryImpl implements PersonRepository {
       }
     } else {
       try {
-        final locationPerson = await localDataSource.getLastPersonsFromCache();
+        final locationPerson = await localDataSource.getPersonsFromCache();
         return Right(locationPerson);
       } on CacheException {
         return Left(CacheFailure());
